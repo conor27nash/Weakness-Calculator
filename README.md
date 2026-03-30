@@ -1,10 +1,18 @@
 # Pokémon Type Weakness Calculator
 
-Select 1–2 Pokémon types and see combined weaknesses, resistances, and immunities using the Gen VI+ type chart. Supports both **defending** (what hits you hard) and **attacking** (what you're strong/weak against) modes.
+A Pokémon type matchup tool with a built-in Pokédex browser and team builder. Select 1–2 types to see combined weaknesses, resistances, and immunities (Gen VI+ type chart), browse every Pokémon, and build a team with defensive coverage analysis.
+
+## Features
+
+- **Type Calculator** — select up to 2 types, see 4×/2× weaknesses, resistances, and immunities
+- **Pokémon Browser** — browse all Pokémon with search, sort, generation filter, and pagination
+- **Detail Panel** — click any Pokémon for stats, abilities, evolution chains, and type pills
+- **Team Builder** — build a 6-slot team, view defensive coverage overlay, get type suggestions
+- **Offline Data** — all Pokémon data embedded from PokeAPI CSVs, no external API calls at runtime
 
 ## Tech Stack
 
-- **Backend**: Go (stdlib)
+- **Backend**: Go (stdlib + embedded CSV data)
 - **Frontend**: React + TypeScript (Vite)
 - **Desktop**: Wails v2
 - **Web**: Docker
@@ -45,9 +53,5 @@ cd frontend && npm run dev
 ## Testing
 
 ```bash
-# Backend
 go test ./backend/...
-
-# Frontend (not yet implemented)
-cd frontend && npm test
 ```
