@@ -7,6 +7,7 @@ export interface Pokemon {
   id: number;
   name: string;
   spriteUrl: string;
+  types: string[];
 }
 
 export interface PokemonDetail {
@@ -21,4 +22,25 @@ export interface PokemonDetail {
   evolutions: { name: string; spriteUrl: string; method: string }[][];
 }
 
-export type Mode = "defend" | "attack";
+export interface TeamMember {
+  name: string;
+  types: string[];
+}
+
+export interface TypeCoverage {
+  attackType: string;
+  weakCount: number;
+  resistCount: number;
+  immuneCount: number;
+}
+
+export interface TeamAnalysis {
+  coverages: TypeCoverage[];
+  uncovered: string[];
+}
+
+export interface TypeSuggestion {
+  types: string[];
+  score: number;
+}
+

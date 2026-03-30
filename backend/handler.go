@@ -40,50 +40,38 @@ func HandleDefend(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// HandleAttack handles GET /attack?type=X
-func HandleAttack(w http.ResponseWriter, r *http.Request) {
-	ctx := r.Context()
-
-	attType, ok := validateType(r.URL.Query().Get("type"))
-	if !ok {
-		http.Error(w, "invalid or missing type", http.StatusBadRequest)
-		return
-	}
-
-	results, err := CalculateAttacking(ctx, attType)
-	if err != nil {
-		http.Error(w, "request cancelled", http.StatusRequestTimeout)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(results); err != nil {
-		http.Error(w, "failed to encode response", http.StatusInternalServerError)
-		return
-	}
-}
-
 // HandlePokemon handles GET /pokemon?type1=X&type2=Y
+// If no type1 is provided, returns all Pokémon.
 func HandlePokemon(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	type1, ok := validateType(r.URL.Query().Get("type1"))
-	if !ok {
-		http.Error(w, "invalid or missing type1", http.StatusBadRequest)
-		return
-	}
+	raw1 := r.URL.Query().Get("type1")
 
-	type2 := ""
-	if raw := r.URL.Query().Get("type2"); raw != "" {
-		t2, ok := validateType(raw)
+	var pokemon []Pokemon
+	var err error
+
+	if raw1 == "" {
+		pokemon, err = FetchAllPokemon(ctx)
+	} else {
+		type1, ok := validateType(raw1)
 		if !ok {
-			http.Error(w, "invalid type2", http.StatusBadRequest)
+			http.Error(w, "invalid type1", http.StatusBadRequest)
 			return
 		}
-		type2 = t2
+
+		type2 := ""
+		if raw := r.URL.Query().Get("type2"); raw != "" {
+			t2, ok := validateType(raw)
+			if !ok {
+				http.Error(w, "invalid type2", http.StatusBadRequest)
+				return
+			}
+			type2 = t2
+		}
+
+		pokemon, err = FetchPokemonByTypes(ctx, type1, type2)
 	}
 
-	pokemon, err := FetchPokemonByTypes(ctx, type1, type2)
 	if err != nil {
 		http.Error(w, "failed to fetch pokemon", http.StatusBadGateway)
 		return
@@ -117,6 +105,60 @@ func HandlePokemonDetail(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to encode response", http.StatusInternalServerError)
 		return
 	}
+}
+
+// HandleTeamAnalyze handles POST /team/analyze
+func HandleTeamAnalyze(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var body struct {
+		Team []TeamMember `json:"team"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if len(body.Team) == 0 {
+		http.Error(w, "team is empty", http.StatusBadRequest)
+		return
+	}
+
+	analysis, err := AnalyzeTeam(ctx, body.Team)
+	if err != nil {
+		http.Error(w, "request cancelled", http.StatusRequestTimeout)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(analysis)
+}
+
+// HandleTeamSuggest handles POST /team/suggest
+func HandleTeamSuggest(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	var body struct {
+		Team []TeamMember `json:"team"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	if len(body.Team) == 0 {
+		http.Error(w, "team is empty", http.StatusBadRequest)
+		return
+	}
+
+	suggestions, err := SuggestTypes(ctx, body.Team)
+	if err != nil {
+		http.Error(w, "request cancelled", http.StatusRequestTimeout)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(suggestions)
 }
 
 func validateType(t string) (string, bool) {

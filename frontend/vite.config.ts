@@ -7,9 +7,9 @@ export default defineConfig({
   server: {
     proxy: {
       '/defend': 'http://localhost:8080',
-      '/attack': 'http://localhost:8080',
       '/pokemon-detail': 'http://localhost:8080',
       '/pokemon': 'http://localhost:8080',
+      '/team': 'http://localhost:8080',
     },
   },
 })

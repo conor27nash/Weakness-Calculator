@@ -119,19 +119,3 @@ func CalculateWeaknesses(ctx context.Context, type1, type2 string) ([]MatchupRes
 	return results, nil
 }
 
-func CalculateAttacking(ctx context.Context, attackType string) ([]MatchupResult, error) {
-	results := make([]MatchupResult, 0, len(AllTypes))
-	for _, def := range AllTypes {
-		select {
-		case <-ctx.Done():
-			return nil, ctx.Err()
-		default:
-		}
-
-		results = append(results, MatchupResult{
-			AttackType: def,
-			Multiplier: Effectiveness(attackType, def),
-		})
-	}
-	return results, nil
-}

@@ -17,6 +17,11 @@ import (
 var assets embed.FS
 
 func main() {
+	if err := backend.InitPokeDB(); err != nil {
+		fmt.Printf("Failed to load Pokémon database: %v\n", err)
+		return
+	}
+
 	webMode := flag.Bool("web", false, "Run as HTTP web server instead of desktop app")
 	flag.Parse()
 
@@ -31,9 +36,10 @@ func main() {
 func runWebServer() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/defend", backend.HandleDefend)
-	mux.HandleFunc("/attack", backend.HandleAttack)
 	mux.HandleFunc("/pokemon", backend.HandlePokemon)
 	mux.HandleFunc("/pokemon-detail", backend.HandlePokemonDetail)
+	mux.HandleFunc("/team/analyze", backend.HandleTeamAnalyze)
+	mux.HandleFunc("/team/suggest", backend.HandleTeamSuggest)
 
 	frontendFiles, err := fs.Sub(assets, "frontend/dist")
 	if err != nil {

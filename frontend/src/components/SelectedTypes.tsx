@@ -1,16 +1,13 @@
-import type { Mode } from "../types";
 import { TYPE_COLORS } from "../constants";
 
 interface SelectedTypesProps {
   selectedTypes: string[];
-  mode: Mode;
   onClear: () => void;
 }
 
-function SelectedTypes({ selectedTypes, mode, onClear }: SelectedTypesProps) {
+function SelectedTypes({ selectedTypes, onClear }: SelectedTypesProps) {
   if (selectedTypes.length === 0) {
-    const hint = mode === "defend" ? "Select 1 or 2 types" : "Select 1 type";
-    return <p className="hint">{hint}</p>;
+    return <p className="hint">Select 1 or 2 types</p>;
   }
 
   return (
