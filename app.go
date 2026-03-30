@@ -26,3 +26,11 @@ func (a *App) CalculateWeaknesses(type1, type2 string) ([]backend.MatchupResult,
 func (a *App) CalculateAttacking(attackType string) ([]backend.MatchupResult, error) {
 	return backend.CalculateAttacking(a.ctx, attackType)
 }
+
+func (a *App) FetchPokemonByTypes(type1, type2 string) ([]backend.Pokemon, error) {
+	return backend.FetchPokemonByTypes(a.ctx, type1, type2)
+}
+
+func (a *App) FetchPokemonDetail(name string) (*backend.PokemonDetail, error) {
+	return backend.FetchPokemonDetail(a.ctx, name)
+}

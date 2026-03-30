@@ -3,10 +3,11 @@ import ModeToggle from "./components/ModeToggle";
 import SelectedTypes from "./components/SelectedTypes";
 import TypeGrid from "./components/TypeGrid";
 import ResultsList from "./components/ResultsList";
+import PokemonList from "./components/PokemonList";
 import "./App.css";
 
 function App() {
-  const { mode, setMode, selectedTypes, toggleType, clearSelection, results } =
+  const { mode, setMode, selectedTypes, setTypes, toggleType, clearSelection, results, pokemon, pokemonLoading } =
     useTypeCalculator();
 
   return (
@@ -16,6 +17,7 @@ function App() {
       <SelectedTypes selectedTypes={selectedTypes} mode={mode} onClear={clearSelection} />
       <TypeGrid selectedTypes={selectedTypes} onTypeClick={toggleType} />
       <ResultsList results={results} />
+      {mode === "defend" && <PokemonList pokemon={pokemon} loading={pokemonLoading} onTypesChange={setTypes} />}
     </div>
   );
 }

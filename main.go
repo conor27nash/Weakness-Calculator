@@ -32,6 +32,8 @@ func runWebServer() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/defend", backend.HandleDefend)
 	mux.HandleFunc("/attack", backend.HandleAttack)
+	mux.HandleFunc("/pokemon", backend.HandlePokemon)
+	mux.HandleFunc("/pokemon-detail", backend.HandlePokemonDetail)
 
 	frontendFiles, err := fs.Sub(assets, "frontend/dist")
 	if err != nil {

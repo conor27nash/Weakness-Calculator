@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import type { Mode, MatchupResult } from "../types";
+import type { Mode, MatchupResult, Pokemon } from "../types";
 
 // Wails injects window.go when running as a desktop app
 function isWails(): boolean {
@@ -29,15 +29,32 @@ async function fetchViaHttp(mode: Mode, selectedTypes: string[]): Promise<Matchu
     return res.json();
 }
 
+async function fetchPokemonViaWails(selectedTypes: string[]): Promise<Pokemon[]> {
+    const wailsApp = (window as any).go.main.App;
+    return wailsApp.FetchPokemonByTypes(selectedTypes[0], selectedTypes[1] || "");
+}
+
+async function fetchPokemonViaHttp(selectedTypes: string[]): Promise<Pokemon[]> {
+    let url = `/pokemon?type1=${selectedTypes[0]}`;
+    if (selectedTypes[1]) {
+        url += `&type2=${selectedTypes[1]}`;
+    }
+    const res = await fetch(url);
+    return res.json();
+}
+
 export function useTypeCalculator() {
     const [mode, setModeState] = useState<Mode>("defend");
     const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
     const [results, setResults] = useState<MatchupResult[]>([]);
+    const [pokemon, setPokemon] = useState<Pokemon[]>([]);
+    const [pokemonLoading, setPokemonLoading] = useState(false);
 
     function setMode(newMode: Mode) {
         setModeState(newMode)
         setSelectedTypes([])
         setResults([])
+        setPokemon([])
     }
 
     function toggleType(typeName: string) {
@@ -53,9 +70,14 @@ export function useTypeCalculator() {
         });
     }
 
+    function setTypes(types: string[]) {
+        setSelectedTypes(types);
+    }
+
     function clearSelection() {
         setSelectedTypes([]);
         setResults([]);
+        setPokemon([]);
     }
 
     useEffect(() => {
@@ -71,6 +93,20 @@ export function useTypeCalculator() {
             .catch(() => setResults([]));
     }, [selectedTypes, mode]);
 
+    useEffect(() => {
+        if (mode !== "defend" || selectedTypes.length === 0) {
+            setPokemon([]);
+            return;
+        }
 
-    return { mode, setMode, selectedTypes, toggleType, clearSelection, results };
+        setPokemonLoading(true);
+        const fetchPokemon = isWails() ? fetchPokemonViaWails : fetchPokemonViaHttp;
+
+        fetchPokemon(selectedTypes)
+            .then((data) => setPokemon(data ?? []))
+            .catch(() => setPokemon([]))
+            .finally(() => setPokemonLoading(false));
+    }, [selectedTypes, mode]);
+
+    return { mode, setMode, selectedTypes, setTypes, toggleType, clearSelection, results, pokemon, pokemonLoading };
 }

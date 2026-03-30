@@ -63,6 +63,62 @@ func HandleAttack(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// HandlePokemon handles GET /pokemon?type1=X&type2=Y
+func HandlePokemon(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	type1, ok := validateType(r.URL.Query().Get("type1"))
+	if !ok {
+		http.Error(w, "invalid or missing type1", http.StatusBadRequest)
+		return
+	}
+
+	type2 := ""
+	if raw := r.URL.Query().Get("type2"); raw != "" {
+		t2, ok := validateType(raw)
+		if !ok {
+			http.Error(w, "invalid type2", http.StatusBadRequest)
+			return
+		}
+		type2 = t2
+	}
+
+	pokemon, err := FetchPokemonByTypes(ctx, type1, type2)
+	if err != nil {
+		http.Error(w, "failed to fetch pokemon", http.StatusBadGateway)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(pokemon); err != nil {
+		http.Error(w, "failed to encode response", http.StatusInternalServerError)
+		return
+	}
+}
+
+// HandlePokemonDetail handles GET /pokemon-detail?name=X
+func HandlePokemonDetail(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	name := strings.ToLower(r.URL.Query().Get("name"))
+	if name == "" {
+		http.Error(w, "missing name parameter", http.StatusBadRequest)
+		return
+	}
+
+	detail, err := FetchPokemonDetail(ctx, name)
+	if err != nil {
+		http.Error(w, "failed to fetch pokemon detail", http.StatusBadGateway)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(detail); err != nil {
+		http.Error(w, "failed to encode response", http.StatusInternalServerError)
+		return
+	}
+}
+
 func validateType(t string) (string, bool) {
 	t = strings.ToLower(t)
 	if slices.Contains(AllTypes, t) {
