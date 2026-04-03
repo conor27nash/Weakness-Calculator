@@ -5,7 +5,8 @@
 *.so
 *.dylib
 *.test
-build/
+build/*
+!build/appicon.png
 
 # Go
 *.out

@@ -122,20 +122,18 @@ function PokemonList({ pokemon, loading, selectedTypes, onTypesChange, onClearTy
       .finally(() => setDetailLoading(false));
   }
 
-  if (loading) {
-    return <p className="hint">Loading Pokémon...</p>;
-  }
-
-  if (pokemon.length === 0) {
+  if (!loading && pokemon.length === 0) {
     return null;
   }
 
   return (
     <div className="pokemon-section">
       <h2>
-        {selectedTypes.length > 0
-          ? `Pokémon with this typing (${pokemon.length})`
-          : `All Pokémon (${pokemon.length})`}
+        {loading
+          ? "Loading Pokémon..."
+          : selectedTypes.length > 0
+            ? `Pokémon with this typing (${pokemon.length})`
+            : `All Pokémon (${pokemon.length})`}
       </h2>
 
       {selected && (
@@ -267,25 +265,31 @@ function PokemonList({ pokemon, loading, selectedTypes, onTypesChange, onClearTy
       </div>
 
       <div className="pokemon-grid">
-        {pagedPokemon.map((p) => (
-          <div
-            key={p.name}
-            className={`pokemon-card ${selected === p.name ? "selected" : ""}`}
-            onClick={() => handleClick(p.name)}
-          >
-            <span className="pokemon-id">#{String(p.id).padStart(3, "0")}</span>
-            <img src={p.spriteUrl} alt={p.name} loading="lazy" />
-            <span>{p.name}</span>
-            <div className="card-type-pills">
-              {p.types.map((t) => (
-                <span key={t} className="card-type-pill" style={{ backgroundColor: TYPE_COLORS[t] }}>
-                  {t}
-                </span>
-              ))}
-            </div>
-          </div>
-        ))}
-        {filteredPokemon.length === 0 && <p className="hint">No Pokémon match your filters</p>}
+        {loading ? (
+          <p className="hint">Loading Pokémon...</p>
+        ) : (
+          <>
+            {pagedPokemon.map((p) => (
+              <div
+                key={p.name}
+                className={`pokemon-card ${selected === p.name ? "selected" : ""}`}
+                onClick={() => handleClick(p.name)}
+              >
+                <span className="pokemon-id">#{String(p.id).padStart(3, "0")}</span>
+                <img src={p.spriteUrl} alt={p.name} loading="lazy" />
+                <span>{p.name}</span>
+                <div className="card-type-pills">
+                  {p.types.map((t) => (
+                    <span key={t} className="card-type-pill" style={{ backgroundColor: TYPE_COLORS[t] }}>
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+            {filteredPokemon.length === 0 && <p className="hint">No Pokémon match your filters</p>}
+          </>
+        )}
       </div>
 
       {totalPages > 1 && (

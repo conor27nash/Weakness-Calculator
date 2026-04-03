@@ -58,7 +58,7 @@ func runDesktop() {
 	app := NewApp()
 
 	err := wails.Run(&options.App{
-		Title:  "Pokémon Type Calculator",
+		Title:  "aron.net",
 		Width:  800,
 		Height: 600,
 		AssetServer: &assetserver.Options{
