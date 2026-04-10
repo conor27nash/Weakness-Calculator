@@ -5,8 +5,6 @@
 *.so
 *.dylib
 *.test
-build/*
-!build/appicon.png
 
 # Go
 *.out
@@ -17,14 +15,23 @@ go.work
 go.work.sum
 
 # Node / Frontend
-frontend/node_modules/
-frontend/dist/
+node_modules/
+dist/
+
+# Desktop
+desktop/build/*
+!desktop/build/appicon.png
+desktop/frontend/
+
+# Fullstack
+fullstack/frontend/
 
 # Wails
-frontend/wailsjs/
+wailsjs/
 
 # Environment
 .env
+.env.local
 
 # Editor/IDE
 .vscode/
