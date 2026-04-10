@@ -55,7 +55,7 @@ jobs:
         working-directory: pwa
 
       - name: Copy frontend dist to desktop
-        run: cp -r pwa/dist desktop/frontend/dist
+        run: mkdir -p desktop/frontend && cp -r pwa/dist desktop/frontend/dist
 
       - name: Run Go tests
         run: go test ./backend/...
