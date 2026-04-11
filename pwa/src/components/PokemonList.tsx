@@ -42,9 +42,12 @@ function PokemonList({ pokemon, loading, selectedTypes, onTypesChange, onClearTy
   const [page, setPage] = useState(0);
   const searchClearedTypes = useRef(false);
   const detailRef = useRef<HTMLDivElement>(null);
+  const prevPokemonRef = useRef(pokemon);
 
-  // Close detail panel when the selected pokemon is no longer in the list
+  // Close detail panel when the pokemon list changes and selected is no longer in it
   useEffect(() => {
+    if (prevPokemonRef.current === pokemon) return;
+    prevPokemonRef.current = pokemon;
     if (selected && !pokemon.some((p) => p.name === selected)) {
       setSelected(null);
       setDetail(null);
@@ -104,6 +107,22 @@ function PokemonList({ pokemon, loading, selectedTypes, onTypesChange, onClearTy
       .then((data) => {
         setDetail(data);
         onTypesChange(data.types);
+        setTimeout(() => detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+      })
+      .catch(() => setDetail(null))
+      .finally(() => setDetailLoading(false));
+  }
+
+  function handleEvolutionClick(name: string) {
+    if (selected === name) return;
+
+    setSelected(name);
+    setDetail(null);
+    setDetailLoading(true);
+
+    getPokemonDetail(name)
+      .then((data) => {
+        setDetail(data);
         setTimeout(() => detailRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
       })
       .catch(() => setDetail(null))
@@ -205,7 +224,7 @@ function PokemonList({ pokemon, loading, selectedTypes, onTypesChange, onClearTy
                           )}
                           <div
                             className={`evolution-item clickable ${selected === evo.name ? "selected" : ""}`}
-                            onClick={() => handleClick(evo.name)}
+                            onClick={() => handleEvolutionClick(evo.name)}
                           >
                             <img src={evo.spriteUrl} alt={evo.name} />
                             <span>{evo.name}</span>
@@ -231,6 +250,7 @@ function PokemonList({ pokemon, loading, selectedTypes, onTypesChange, onClearTy
         />
         <select
           className="sort-select"
+          aria-label="Sort order"
           value={sortBy}
           onChange={(e) => setSortBy(e.target.value as SortOption)}
         >
